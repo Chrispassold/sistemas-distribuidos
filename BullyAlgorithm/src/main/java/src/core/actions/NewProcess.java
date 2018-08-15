@@ -1,21 +1,15 @@
 package src.core.actions;
 
-import src.core.Process;
-
-import java.util.concurrent.BlockingQueue;
+import src.core.BullyAlgorithm;
 
 public class NewProcess extends AbstractAction {
 
-    private int lastId = 0;
-
-    public NewProcess(long seconds, BlockingQueue<Process> processes) {
-        super(seconds, processes);
+    public NewProcess(long seconds, BullyAlgorithm bullyAlgorithm) {
+        super(seconds, bullyAlgorithm);
     }
 
     @Override
-    public synchronized void execute() throws InterruptedException {
-        Process process = new Process(++lastId);
-        putProcess(process);
-        System.out.println("New process > " + lastId);
+    public synchronized void execute() {
+        this.bullyAlgorithm.createProcess();
     }
 }

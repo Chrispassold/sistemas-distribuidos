@@ -1,33 +1,42 @@
 package src.core.actions;
 
-import src.core.Process;
+import src.core.BullyAlgorithm;
 
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 public abstract class AbstractAction extends Thread {
 
     final protected long interval;
-    private BlockingQueue<Process> processes;
+    protected final BullyAlgorithm bullyAlgorithm;
 
-    public AbstractAction(long seconds, BlockingQueue<Process> processes) {
+    private boolean startAfterSleep = false;
+
+    public AbstractAction(long seconds, BullyAlgorithm bullyAlgorithm) {
         interval = TimeUnit.SECONDS.toMillis(seconds);
-        this.processes = processes;
+        this.bullyAlgorithm = bullyAlgorithm;
     }
 
     @Override
     public void run() {
         try {
             while (true) {
-                execute();
-                sleep(this.interval);
+
+                if (startAfterSleep) {
+                    sleep(this.interval);
+                    execute();
+                    this.bullyAlgorithm.printAvaiableProcess();
+                } else {
+                    execute();
+                    this.bullyAlgorithm.printAvaiableProcess();
+                    sleep(this.interval);
+                }
             }
         } catch (InterruptedException ignore) {
         }
     }
 
-    protected void putProcess(Process process) throws InterruptedException {
-        processes.put(process);
+    public void startAfterSleep() {
+        startAfterSleep = true;
     }
 
     public abstract void execute() throws InterruptedException;

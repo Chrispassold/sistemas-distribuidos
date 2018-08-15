@@ -5,24 +5,24 @@ import src.core.actions.KillProcess;
 import src.core.actions.NewProcess;
 import src.core.actions.ProcessRequest;
 
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
 
 public class BullyAlgorithm {
 
     final private Thread newProcess, processRequest, killProcess, killCoordinator;
-
-    private boolean isElecting = false;
-
-    private BlockingQueue<Process> processes;
+    private int latestId = 0;
+    private Map<Integer, Process> processes;
 
     public BullyAlgorithm() {
-        processes = new LinkedBlockingQueue<>();
+        processes = new HashMap<>();
 
-        processRequest = new ProcessRequest(25, processes);
-        newProcess = new NewProcess(30, processes);
-        killProcess = new KillProcess(80, processes);
-        killCoordinator = new KillCoordinator(100, processes);
+        processRequest = new ProcessRequest(25, this);
+        newProcess = new NewProcess(5, this);
+        killProcess = new KillProcess(10, this);
+        killCoordinator = new KillCoordinator(100, this);
 
         processRequest.start();
         newProcess.start();
@@ -30,8 +30,26 @@ public class BullyAlgorithm {
         killCoordinator.start();
     }
 
-    private synchronized void startElecting(){
-        isElecting = true;
+    public synchronized void createProcess() {
+        int id = latestId++;
+        Process process = new Process(id);
+        processes.put(id, process);
+    }
+
+    public synchronized void killRandomProcess() {
+        Random generator = new Random();
+        while (!processes.isEmpty()) {
+            int random = generator.nextInt(latestId);
+            if (processes.containsKey(random)) {
+                processes.remove(random);
+                System.out.println("[process] kill " + random);
+                return;
+            }
+        }
+    }
+
+    public synchronized void printAvaiableProcess() {
+        System.out.println(Arrays.toString(processes.keySet().toArray()));
     }
 
 }
