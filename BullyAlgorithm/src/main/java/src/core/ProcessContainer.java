@@ -25,7 +25,7 @@ public class ProcessContainer {
         }
 
         processes.put(id, process);
-        System.out.println("[process] created " + id);
+        Util.print("[process] created " + id);
     }
 
     protected Process getRandomProcess() {
@@ -47,21 +47,14 @@ public class ProcessContainer {
         if (coordinator != null) coordinator.inactive();
     }
 
-    public void requestToCoordinator() {
+    public synchronized void requestToCoordinator() {
         Process randomProcess = getRandomProcess();
         if (randomProcess != null) {
             boolean ok = randomProcess.sendMessageToCoordinator();
 
             if (!ok) {
-                Integer higherKey = processes.higherKey(randomProcess.getId());
-
-                do {
-                    /*
-                    Exception in thread "Thread-0" java.lang.NullPointerException
-	at src.core.ProcessContainer.requestToCoordinator(ProcessContainer.java:59)
-	at src.core.Routines.lambda$startNewRoutine$0(Routines.java:28)
-	at java.lang.Thread.run(Thread.java:748)
-                    * */
+                int higherKey = processes.higherKey(randomProcess.getId());
+                while(coordinator != null && !coordinator.isActive()){
                     if (higherKey == randomProcess.getId()) {
                         coordinator = randomProcess;
                     } else {
@@ -69,9 +62,13 @@ public class ProcessContainer {
                     }
 
                     higherKey--;
-                } while (!coordinator.isActive());
+                }
 
-                System.out.println("[COORDINATOR] The new coordinator is process " + coordinator.getId());
+                if (coordinator != null) {
+                    Util.print("[COORDINATOR] The new coordinator is process " + String.valueOf(coordinator), true);
+                } else {
+                    Util.print("[COORDINATOR] Any one can be a coordinator", true);
+                }
             }
         }
     }

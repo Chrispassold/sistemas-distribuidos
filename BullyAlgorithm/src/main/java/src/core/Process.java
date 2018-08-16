@@ -29,11 +29,11 @@ public class Process implements Comparable<Process> {
 
     private boolean receiveCoordinatorMessage(String message) {
         if (isCoordinator() && isActive()) {
-            System.out.println("[coordinator] receive message: " + message);
+            Util.print("[coordinator] receive message: " + message);
             return true;
         }
 
-        System.out.println("[coordinator] DEAD");
+        Util.print("[coordinator] DEAD");
 
         return false;
     }
@@ -69,5 +69,12 @@ public class Process implements Comparable<Process> {
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    @Override
+    public String toString() {
+        return "Process{" +
+                "id=" + id +
+                '}';
     }
 }
