@@ -63,7 +63,7 @@ public class ProcessContainer {
                     }
 
                     higherKey--;
-                } while (coordinator.isActive());
+                } while (!coordinator.isActive());
 
                 System.out.println("[COORDINATOR] The new coordinator is process " + coordinator.getId());
             }
