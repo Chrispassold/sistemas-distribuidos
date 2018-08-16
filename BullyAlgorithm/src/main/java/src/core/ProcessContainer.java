@@ -56,6 +56,12 @@ public class ProcessContainer {
                 Integer higherKey = processes.higherKey(randomProcess.getId());
 
                 do {
+                    /*
+                    Exception in thread "Thread-0" java.lang.NullPointerException
+	at src.core.ProcessContainer.requestToCoordinator(ProcessContainer.java:59)
+	at src.core.Routines.lambda$startNewRoutine$0(Routines.java:28)
+	at java.lang.Thread.run(Thread.java:748)
+                    * */
                     if (higherKey == randomProcess.getId()) {
                         coordinator = randomProcess;
                     } else {
