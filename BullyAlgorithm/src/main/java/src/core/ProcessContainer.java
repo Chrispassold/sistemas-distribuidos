@@ -1,5 +1,6 @@
 package src.core;
 
+import java.util.Arrays;
 import java.util.Random;
 import java.util.TreeMap;
 
@@ -7,6 +8,8 @@ public class ProcessContainer {
     private static int latestId = 0;
     private TreeMap<Integer, Process> processes;
     private static Process coordinator;
+
+    private static boolean isElecting = false;
 
     public ProcessContainer() {
         processes = new TreeMap<>();
@@ -16,23 +19,29 @@ public class ProcessContainer {
         return coordinator;
     }
 
-    public void createProcess() {
+    public synchronized void setCoordinator(Process newCoordinator) {
+        coordinator = newCoordinator;
+    }
+
+    public synchronized void createProcess() {
         int id = latestId++;
         Process process = new Process(id);
 
-        if (coordinator == null) {
-            coordinator = process;
+        if (getCoordinator() == null) {
+            this.setCoordinator(process);
         }
 
         processes.put(id, process);
-        Util.print("[process] created " + id);
+        ConsoleUtil.printGreen("Created a new process %s", process);
     }
 
     protected Process getRandomProcess() {
+        if (processes.isEmpty()) return null;
+
         Random generator = new Random();
         while (true) {
             int random = generator.nextInt(latestId);
-            if ((coordinator == null || random != coordinator.getId()) && processes.containsKey(random)) {
+            if ((getCoordinator() == null || random != getCoordinator().getId()) && processes.containsKey(random)) {
                 return processes.get(random);
             }
         }
@@ -40,37 +49,53 @@ public class ProcessContainer {
 
     public void killRandomProcess() {
         Process randomProcess = getRandomProcess();
-        if (randomProcess != null) randomProcess.inactive();
+        if (randomProcess != null) {
+            randomProcess.inactive();
+            ConsoleUtil.printRed("Killing %s", randomProcess);
+        }
     }
 
     public void killCoordinator() {
-        if (coordinator != null) coordinator.inactive();
+        if (getCoordinator() != null) {
+            getCoordinator().inactive();
+            ConsoleUtil.printRed("Killing coordinator %s", getCoordinator());
+        }
     }
 
-    public synchronized void requestToCoordinator() {
+    public void requestToCoordinator() {
         Process randomProcess = getRandomProcess();
         if (randomProcess != null) {
             boolean ok = randomProcess.sendMessageToCoordinator();
 
-            if (!ok) {
-                int higherKey = processes.higherKey(randomProcess.getId());
-                while(coordinator != null && !coordinator.isActive()){
-                    if (higherKey == randomProcess.getId()) {
-                        coordinator = randomProcess;
-                    } else {
-                        coordinator = processes.get(higherKey);
-                    }
+            if (ok || isElecting) return;
 
-                    higherKey--;
-                }
+            this.startElection(randomProcess);
+        }
+    }
 
-                if (coordinator != null) {
-                    Util.print("[COORDINATOR] The new coordinator is process " + String.valueOf(coordinator), true);
+    private void startElection(Process whoStarts) {
+        isElecting = true;
+        ConsoleUtil.printBlue("Process %d started an election", whoStarts.getId());
+        ConsoleUtil.printBlue("%s", Arrays.toString(processes.keySet().toArray()));
+        int higherKey = processes.lastKey();
+        Process newCoordinator = null;
+
+        while (newCoordinator == null || !newCoordinator.isActive()) {
+            if (processes.containsKey(higherKey)) {
+                if (higherKey == whoStarts.getId()) {
+                    newCoordinator = whoStarts;
                 } else {
-                    Util.print("[COORDINATOR] Any one can be a coordinator", true);
+                    newCoordinator = processes.getOrDefault(higherKey, null);
                 }
             }
+
+            higherKey--;
         }
+
+        this.setCoordinator(newCoordinator);
+        ConsoleUtil.printBlue("The new coordinator is %s", getCoordinator());
+
+        isElecting = false;
     }
 
 }

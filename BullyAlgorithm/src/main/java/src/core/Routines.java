@@ -13,14 +13,14 @@ public class Routines {
     }
 
     public void startNewRoutine(int sec, Runnable runnable) {
-        startNewRoutine(sec, runnable, true);
+        startNewRoutine(sec, runnable, false);
     }
 
-    public void startNewRoutine(int sec, Runnable runnable, boolean sleepAfter) {
+    public void startNewRoutine(int sec, Runnable runnable, boolean startImmediately) {
         Thread thread = new Thread(() -> {
             while (true) {
                 try {
-                    if (sleepAfter) {
+                    if (startImmediately) {
                         runnable.run();
                         Thread.sleep(TimeUnit.SECONDS.toMillis(sec));
                     } else {

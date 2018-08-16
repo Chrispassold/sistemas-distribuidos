@@ -22,18 +22,18 @@ public class Process implements Comparable<Process> {
         return active;
     }
 
-    public boolean isCoordinator() {
+    public synchronized boolean isCoordinator() {
         Process coordinator = ProcessContainer.getCoordinator();
         return coordinator != null && coordinator.getId() == this.getId();
     }
 
-    private boolean receiveCoordinatorMessage(String message) {
+    private synchronized boolean receiveCoordinatorMessage(String message) {
+
         if (isCoordinator() && isActive()) {
-            Util.print("[coordinator] receive message: " + message);
+            ConsoleUtil.printPurple("Message received: %s", message);
+
             return true;
         }
-
-        Util.print("[coordinator] DEAD");
 
         return false;
     }
@@ -46,12 +46,12 @@ public class Process implements Comparable<Process> {
         Process coordinator = ProcessContainer.getCoordinator();
 
         if (coordinator != null) {
-            return coordinator.receiveCoordinatorMessage("OLÁ COORDENADOR, SOU O PROCESSO " + getId());
+            ConsoleUtil.printPurple("Sending message to coordinator...");
+            return coordinator.receiveCoordinatorMessage("It is process " + getId() + ", cambio!");
         }
 
         return false;
     }
-
 
     @Override
     public int compareTo(Process o) {

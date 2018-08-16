@@ -4,14 +4,18 @@ public class BullyAlgorithm {
     private Routines routines;
     private ProcessContainer processContainer;
 
+    public static void main(String[] args) {
+        new BullyAlgorithm();
+    }
+
     public BullyAlgorithm() {
         routines = new Routines();
         processContainer = new ProcessContainer();
 
-        routines.startNewRoutine(1, processContainer::requestToCoordinator, false);
-        routines.startNewRoutine(3, processContainer::createProcess);
-        routines.startNewRoutine(7, processContainer::killRandomProcess, false);
-        routines.startNewRoutine(10, processContainer::killCoordinator, false);
+        routines.startNewRoutine(3, processContainer::requestToCoordinator);
+        routines.startNewRoutine(5, processContainer::createProcess, true);
+        routines.startNewRoutine(10, processContainer::killRandomProcess);
+        routines.startNewRoutine(15, processContainer::killCoordinator);
     }
 
 
