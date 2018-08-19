@@ -23,7 +23,7 @@ public class Process implements Comparable<Process> {
     }
 
     public synchronized boolean isCoordinator() {
-        Process coordinator = ProcessContainer.getCoordinator();
+        Process coordinator = ProcessManager.getCoordinator();
         return coordinator != null && coordinator.getId() == this.getId();
     }
 
@@ -43,7 +43,7 @@ public class Process implements Comparable<Process> {
             return true;
         }
 
-        Process coordinator = ProcessContainer.getCoordinator();
+        Process coordinator = ProcessManager.getCoordinator();
 
         if (coordinator != null) {
             ConsoleUtil.printPurple("Sending message to coordinator...");
