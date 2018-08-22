@@ -7,7 +7,7 @@ import java.util.TreeMap;
 /**
  * Concentra as operacoes principais da rotina
  */
-public class ProcessContainer {
+public class ProcessManager {
     /**
      * Armazena o identificador do ultimo processo criado
      */
@@ -31,7 +31,7 @@ public class ProcessContainer {
      */
     private static boolean isElecting = false;
 
-    public ProcessContainer() {
+    public ProcessManager() {
         processes = new TreeMap<>();
     }
 
