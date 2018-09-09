@@ -1,13 +1,10 @@
-package server;
-
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
-public class MainServer {
-    public static final String REGISTER = "BERKLEY";
+class Server {
+    static final String REGISTER = "BERKLEY";
 
-    public static void main(String[] args) {
-
+    Server() {
         try {
             BerkleyServer sdrmi = new BerkleyServerImpl();
             Registry registry = LocateRegistry.getRegistry();
@@ -18,4 +15,6 @@ public class MainServer {
             System.out.println("Houve um erro: " + ex.getMessage());
         }
     }
+
+
 }
