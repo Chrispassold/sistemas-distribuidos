@@ -11,16 +11,20 @@ public class BerkleyServerImpl extends UnicastRemoteObject implements BerkleySer
 
         Random random = new Random();
         hour = LocalTime.of(random.nextInt(23), random.nextInt(59));
+
+        System.out.println("SERVER HOUR: " + hour);
     }
 
     @Override
-    public LocalTime getHour()throws RemoteException {
+    public LocalTime getTime() throws RemoteException {
         return hour;
     }
 
     @Override
-    public void setHour(LocalTime hour) throws RemoteException {
-        this.hour = hour;
-        System.out.println(hour);
+    public void updateTime(long seconds) throws RemoteException {
+        hour = hour.plusSeconds(seconds);
+        System.out.println("UPDATED: " + hour);
     }
+
+
 }

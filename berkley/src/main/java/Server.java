@@ -1,3 +1,5 @@
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
@@ -16,5 +18,9 @@ class Server {
         }
     }
 
+    public static BerkleyServer getServer(String machine) throws RemoteException, NotBoundException {
+        Registry registry = LocateRegistry.getRegistry(machine);
+        return (BerkleyServer) registry.lookup(Server.REGISTER);
+    }
 
 }

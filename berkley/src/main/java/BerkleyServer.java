@@ -3,6 +3,6 @@ import java.rmi.RemoteException;
 import java.time.LocalTime;
 
 public interface BerkleyServer extends Remote {
-    LocalTime getHour() throws RemoteException;
-    void setHour(LocalTime hour) throws RemoteException;
+    LocalTime getTime() throws RemoteException;
+    void updateTime(long seconds) throws RemoteException;
 }
