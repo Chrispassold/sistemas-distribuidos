@@ -1,29 +1,24 @@
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
-import java.time.LocalTime;
-import java.util.Random;
 
 public class BerkleyServerImpl extends UnicastRemoteObject implements BerkleyServer {
 
-    private LocalTime hour;
+    private Time time;
 
     BerkleyServerImpl() throws RemoteException {
-
-        Random random = new Random();
-        hour = LocalTime.of(random.nextInt(23), random.nextInt(59));
-
-        System.out.println("SERVER HOUR: " + hour);
+        time = new Time();
+        System.out.println("SERVER HOUR: " + time);
     }
 
     @Override
-    public LocalTime getTime() throws RemoteException {
-        return hour;
+    public Time getTime() throws RemoteException {
+        return time;
     }
 
     @Override
     public void updateTime(long seconds) throws RemoteException {
-        hour = hour.plusSeconds(seconds);
-        System.out.println("UPDATED: " + hour);
+        time.updateTime(seconds);
+        System.out.println("UPDATED: " + time);
     }
 
 

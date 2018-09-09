@@ -1,8 +1,0 @@
-gerar o jar rodando
-jar cvfe berkley.jar Main *.class
-
-para rodar o servidor, executar
-java -jar berkley.jar server
-
-para rodar o client, executar
-java -jar berkley.jar client
