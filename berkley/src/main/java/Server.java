@@ -4,7 +4,7 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
 class Server {
-    static final String REGISTER = "BERKLEY";
+    private static final String REGISTER = "BERKLEY";
 
     Server() {
         try {
@@ -18,9 +18,14 @@ class Server {
         }
     }
 
-    public static BerkleyServer getServer(String machine) throws RemoteException, NotBoundException {
+    static BerkleyServer getServer(String machine) throws RemoteException, NotBoundException {
         Registry registry = LocateRegistry.getRegistry(machine);
         return (BerkleyServer) registry.lookup(Server.REGISTER);
+    }
+
+    static BerkleyServer getServer(String machine, String name) throws RemoteException, NotBoundException {
+        Registry registry = LocateRegistry.getRegistry(machine);
+        return (BerkleyServer) registry.lookup(name);
     }
 
 }
