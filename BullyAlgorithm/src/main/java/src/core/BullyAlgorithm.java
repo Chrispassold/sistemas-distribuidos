@@ -26,10 +26,10 @@ public class BullyAlgorithm {
         routines = new Routines();
         processManager = new ProcessManager();
 
-        routines.startNewRoutine(3, processManager::requestToCoordinator);
-        routines.startNewRoutine(5, processManager::createProcess, true);
-        routines.startNewRoutine(10, processManager::killRandomProcess);
-        routines.startNewRoutine(15, processManager::killCoordinator);
+        routines.startNewRoutine(2, processContainer::requestToCoordinator);
+        routines.startNewRoutine(3, processContainer::createProcess, true);
+        routines.startNewRoutine(8, processContainer::killRandomProcess);
+        routines.startNewRoutine(10, processContainer::killCoordinator);
     }
 
 

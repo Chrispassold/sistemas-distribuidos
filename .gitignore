@@ -16,7 +16,7 @@
 *.iws
 *.iml
 *.ipr
-/out/
+out/
 
 ### NetBeans ###
 /nbproject/private/
@@ -24,6 +24,9 @@
 /dist/
 /nbdist/
 /.nb-gradle/
+
+### Projects ###
+/exclusao-mutua/
 
 
 
