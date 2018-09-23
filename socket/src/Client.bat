@@ -1,2 +1,2 @@
-yarn start-client
+yarn client
 pause
