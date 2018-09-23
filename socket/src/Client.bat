@@ -1,2 +1,0 @@
-yarn client
-pause

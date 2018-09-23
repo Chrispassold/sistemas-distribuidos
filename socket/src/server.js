@@ -1,86 +1,62 @@
 const io = require('socket.io')
+const util = require('./util.js')
 
 const server = io.listen(8000)
 
-let clients = new Map()
-let latestIdClient = 0
-let coordinator = null
-let isElecting = false
+const _clients = new Map()
+let _latestIdClient = 0
+let _coordinator = null
+let _isElecting = false
 
 
 // event fired every time a new client connects:
 server.on('connection', (socket) => {
-    const id = ++latestIdClient
+    const customId = ++_latestIdClient
 
     // initialize this client's sequence number
-    clients.set(socket, id)
+    _clients.set(socket.id, customId)
+    socket.emit('update id', customId)
 
-    console.info(`Client connected [id=${id}]`)
-
-    socket.emit('update id', id)
-
+    console.info(`Client connected [id=${customId}]`)
     // when socket disconnects, remove it from the list:
     socket.on('disconnect', () => {
-        clients.delete(socket)
-        console.info(`Client gone [id=${id}]`)
+        console.info(`Client gone [id=${_clients.get(socket.id)}]`)
+        _clients.delete(socket.id)
     });
 });
 
-server.on('consume', (id) => {
-    console.info("Socket consume")
-    if (isElecting) return;
+server.on('consume resource', (socketId) => {
+    console.info("Socket consume", socketId)
+    if (_isElecting) return;
 
-    if (coordinator === null) {
-        electNewCoordinator();
+    if (_coordinator === null) {
+        if (!_isElecting) {
+            _isElecting = true
+            updateCoordinator(util.electNewCoordinator(_clients))
+            _isElecting = false
+        }
     } else {
-        const socket = getClientById(id)
-        if (socket !== coordinator) {
-            coordinator.emit('consume', socket)
+        if (socketId !== _coordinator.id) {
+            _coordinator.emit('consume', socketId, _clients.get(socketId))
         }
     }
 })
 
-function getClientById(id) {
-    for (const [socket, _id] of clients.entries()) {
-        if (id === _id) return socket
-    }
+function updateCoordinator(coordinator) {
+    if (coordinator === null) return
 
-    return null;
+    _coordinator = coordinator
+    console.info("New coordinator : " + _clients.get(coordinator.id))
 }
-
-
-function electNewCoordinator() {
-    if (coordinator !== null) return
-
-    console.info("electing")
-
-    isElecting = true
-
-    let higherId = 0, higherClient = null
-    for (const [client, id] of clients.entries()) {
-        if (id > higherId) {
-            higherId = id
-            higherClient = client;
-        }
-    }
-
-    if (higherClient !== null) {
-        coordinator = higherClient
-    }
-
-    isElecting = false
-}
-
 
 // Kill coordinator
 setInterval(() => {
-    if (coordinator != null) {
-        console.info(`Coordinator [id=${clients.get(coordinator)}] killed`)
-        clients.delete(coordinator)
-        coordinator.emit('kill')
-        coordinator = null
+    if (_coordinator != null) {
+        console.info(`Coordinator [id=${_clients.get(_coordinator.id)}] killed`)
+        _coordinator.disconnect()
+        _clients.delete(_coordinator.id)
+        _coordinator = null
     }
 }, 60 * 1000)
 
-
-console.info("Waiting clients...")
+console.info("Waiting _clients...")
