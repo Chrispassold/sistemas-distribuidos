@@ -7,17 +7,15 @@ let latestIdClient = 0
 let coordinator = null
 let isElecting = false
 
-
 // event fired every time a new client connects:
 server.on('connection', (socket) => {
+
     const id = ++latestIdClient
 
     // initialize this client's sequence number
     clients.set(socket, id)
 
     console.info(`Client connected [id=${id}]`)
-
-    socket.emit('update id', id)
 
     // when socket disconnects, remove it from the list:
     socket.on('disconnect', () => {
@@ -26,27 +24,18 @@ server.on('connection', (socket) => {
     });
 });
 
-server.on('consume', (id) => {
-    console.info("Socket consume")
+server.on('consume', (socket) => {
+    console.info("Socket consume", socket)
     if (isElecting) return;
 
     if (coordinator === null) {
         electNewCoordinator();
     } else {
-        const socket = getClientById(id)
         if (socket !== coordinator) {
-            coordinator.emit('consume', socket)
+            coordinator.emit('consume', socket, clients.get(socket))
         }
     }
 })
-
-function getClientById(id) {
-    for (const [socket, _id] of clients.entries()) {
-        if (id === _id) return socket
-    }
-
-    return null;
-}
 
 
 function electNewCoordinator() {
