@@ -19,12 +19,11 @@ ioClient.on('release', () => {
 })
 
 function releaseProcess() {
-    utils.log('releasing : ' + id)
+    utils.log('releasing')
     isWaitingResponse = false
 }
 
 function requestServerConsume() {
-    utils.log('requestServerConsume : ' + isWaitingResponse)
     if (isWaitingResponse) {
         return
     }

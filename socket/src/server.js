@@ -23,11 +23,16 @@ server.on('connection', (socket) => {
 
     utils.log(`Client connected [id=${id}]`)
 
+    socket.on('consume', () => {
+        processConsumeCoordinator(id)
+    })
+
     // when socket disconnects, remove it from the list:
     socket.on('disconnect', () => {
         clients.delete(id)
 
         if (id === coordinator) {
+            coordinator = null
             clearTimeout(tmoConsumingResource)
             waiting.forEach(id => {
                 const obj = getProcessById(id)
@@ -41,12 +46,7 @@ server.on('connection', (socket) => {
     });
 });
 
-server.on('consume', (id) => {
-    processConsumeCoordinator(id)
-})
-
 function processConsumeCoordinator(id) {
-    utils.log('Processing consumer: ' + id)
     if (isElecting) {
         utils.log('Election occuring')
         return
@@ -55,8 +55,11 @@ function processConsumeCoordinator(id) {
     if (!coordinator) {
         isElecting = true
         coordinator = utils.electNewCoordinator(clients)
-        if (!!coordinator)
+        if (!!coordinator) {
             utils.log("new coordinator id " + coordinator)
+        } else {
+            utils.log("coordinator not elected")
+        }
 
         isElecting = false
     } else {
@@ -88,7 +91,7 @@ function requestConsume(id) {
 function consume(id) {
     _isBeingConsumed = true
     utils.log(`Client ${id} is consuming`)
-    tmoConsumingResource = setTimeout(() => releaseResource(id), utils.randomInRange(5, 15))
+    tmoConsumingResource = setTimeout(() => releaseResource(id), utils.randomInRange(5, 15) * 1000)
 }
 
 function releaseResource(id) {

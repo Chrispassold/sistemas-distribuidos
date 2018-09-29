@@ -13,12 +13,10 @@ _exports.randomProcess = function (processes) {
 }
 
 _exports.electNewCoordinator = function (clients) {
-    console.info("electing")
-
     if (!clients) return null;
 
     let higherId = 0
-    for (const id in clients.keys()) {
+    for (const [id, value] of clients) {
         if (id > higherId) {
             higherId = id
         }
