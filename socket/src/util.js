@@ -17,17 +17,17 @@ _exports.electNewCoordinator = function (clients) {
 
     if (!clients) return null;
 
-    let higherId = 0, higherClient = null
-    for (const [socketId, obj] of clients.entries()) {
-        if (obj.id > higherId) {
-            higherId = obj.id
-            higherClient = obj.socket;
+    let higherId = 0
+    for (const id in clients.keys()) {
+        if (id > higherId) {
+            higherId = id
         }
     }
 
-    if (higherClient !== null) {
-        return higherClient
-    }
+    return higherId
+}
 
-    return null
+_exports.log = function (message) {
+    const date = new Date()
+    console.info(`[${date.toLocaleString()}] - ${message}`)
 }
