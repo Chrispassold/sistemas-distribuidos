@@ -48,16 +48,14 @@ function releaseAllWaitingRequests() {
         }
         releaseAllWaitingRequests()
     }
-
-    _isBeingConsumed = false
 }
 
 function disconnectCoordinator() {
     coordinator = null
     clients.delete(coordinator)
-    clearTimeout(tmoConsumingResource)
     utils.log('cleaning wait list')
     releaseAllWaitingRequests()
+    _isBeingConsumed = false
 }
 
 function processConsumeCoordinator(id) {
@@ -66,7 +64,7 @@ function processConsumeCoordinator(id) {
         return
     }
 
-    if (!coordinator) {
+    if (coordinator === null) {
         isElecting = true
         coordinator = utils.electNewCoordinator(clients)
         if (!!coordinator) {
@@ -77,7 +75,7 @@ function processConsumeCoordinator(id) {
 
         isElecting = false
     } else {
-        if (!!id && id !== coordinator) {
+        if (id !== coordinator) {
             requestConsume(id)
         }
     }

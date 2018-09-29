@@ -19,17 +19,15 @@ ioClient.on('release', () => {
 })
 
 function releaseProcess() {
-    utils.log('releasing')
+    utils.log('released')
     isWaitingResponse = false
 }
 
 function requestServerConsume() {
-    if (isWaitingResponse) {
-        return
+    if (!isWaitingResponse) {
+        isWaitingResponse = true
+        ioClient.emit('consume', id)
     }
-
-    isWaitingResponse = true
-    ioClient.emit('consume', id)
 
     tmoConsumeCoordinator = setTimeout(() => requestServerConsume(), utils.getTimeRequestConsumingInMillis())
 }
