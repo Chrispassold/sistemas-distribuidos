@@ -31,5 +31,5 @@ function requestServerConsume() {
     isWaitingResponse = true
     ioClient.emit('consume', id)
 
-    tmoConsumeCoordinator = setTimeout(() => requestServerConsume(), (utils.randomInRange(10, 25) * 1000))
+    tmoConsumeCoordinator = setTimeout(() => requestServerConsume(), utils.getTimeRequestConsumingInMillis())
 }

@@ -29,3 +29,15 @@ _exports.log = function (message) {
     const date = new Date()
     console.info(`[${date.toLocaleString()}] - ${message}`)
 }
+
+_exports.getTimeConsumingInMillis = function () {
+    const sec = this.randomInRange(5, 15)
+    this.log(`${sec} seconds to finish consume`)
+    return sec * 1000
+}
+
+_exports.getTimeRequestConsumingInMillis = function () {
+    const sec = this.randomInRange(10, 25)
+    this.log(`${sec} seconds to request consume`)
+    return sec * 1000
+}

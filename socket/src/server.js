@@ -29,22 +29,36 @@ server.on('connection', (socket) => {
 
     // when socket disconnects, remove it from the list:
     socket.on('disconnect', () => {
-        clients.delete(id)
-
         if (id === coordinator) {
-            coordinator = null
-            clearTimeout(tmoConsumingResource)
-            waiting.forEach(id => {
-                const obj = getProcessById(id)
-                if (!!obj) {
-                    obj.emit('release')
-                }
-            })
+            disconnectCoordinator()
+            utils.log(`Coordinator has gone [id=${id}]`)
+        } else {
+            utils.log(`Client has gone [id=${id}]`)
         }
 
-        utils.log(`Client gone [id=${id}]`)
     });
 });
+
+function releaseAllWaitingRequests() {
+    if (waiting.length > 0) {
+        const id = waiting.shift()
+        const obj = getProcessById(id)
+        if (!!obj) {
+            obj.emit('release')
+        }
+        releaseAllWaitingRequests()
+    }
+
+    _isBeingConsumed = false
+}
+
+function disconnectCoordinator() {
+    coordinator = null
+    clients.delete(coordinator)
+    clearTimeout(tmoConsumingResource)
+    utils.log('cleaning wait list')
+    releaseAllWaitingRequests()
+}
 
 function processConsumeCoordinator(id) {
     if (isElecting) {
@@ -79,7 +93,6 @@ function requestConsume(id) {
 
     waiting.push(id)
 
-    console.log(_isBeingConsumed)
     if (_isBeingConsumed) {
         utils.log(`Client ${id} is waiting...`)
     } else {
@@ -91,18 +104,31 @@ function requestConsume(id) {
 function consume(id) {
     _isBeingConsumed = true
     utils.log(`Client ${id} is consuming`)
-    tmoConsumingResource = setTimeout(() => releaseResource(id), utils.randomInRange(5, 15) * 1000)
+    tmoConsumingResource = setTimeout(() => releaseResource(id), utils.getTimeConsumingInMillis())
 }
 
 function releaseResource(id) {
-    const socket = getProcessById(id)
-    socket.emit('release')
+    if (!!id) {
+        const socket = getProcessById(id)
+        if (!!socket) {
+            socket.emit('release')
+        }
+    }
+
     if (waiting.length > 0) {
         consume(waiting.shift())
     } else {
         _isBeingConsumed = false
     }
 }
+
+// Kill coordinator
+setInterval(() => {
+    if (coordinator != null) {
+        const socket = getProcessById(coordinator)
+        if (!!socket) socket.disconnect()
+    }
+}, 60 * 1000)
 
 
 console.info("Waiting clients...")
