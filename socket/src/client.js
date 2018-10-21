@@ -14,6 +14,12 @@ ioClient.on('update', (id) => {
     requestServerConsume()
 })
 
+// when socket disconnects, remove it from the list:
+ioClient.on('disconnect', () => {
+    utils.log('Disconected')
+    clearTimeout(tmoConsumeCoordinator)
+});
+
 ioClient.on('release', () => {
     releaseProcess()
 })
@@ -27,6 +33,8 @@ function requestServerConsume() {
     if (!isWaitingResponse) {
         isWaitingResponse = true
         ioClient.emit('consume', id)
+    }else{
+        utils.log('is waiting response')
     }
 
     tmoConsumeCoordinator = setTimeout(() => requestServerConsume(), utils.getTimeRequestConsumingInMillis())

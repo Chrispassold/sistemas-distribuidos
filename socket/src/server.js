@@ -1,4 +1,5 @@
 const io = require('socket.io')
+// const shelljs = require('shelljs')
 const utils = require('./util.js')
 const server = io.listen(8000)
 
@@ -127,6 +128,16 @@ setInterval(() => {
         if (!!socket) socket.disconnect()
     }
 }, 60 * 1000)
+
+// // Create process
+// setInterval(() => {
+//     try{
+//         shelljs.exec('start cmd.exe @cmd /k yarn client')
+//     }catch (e) {
+//         console.log("Não foi possível criar outro processo")
+//         console.log("Tentaremos novamente mais tarde")
+//     }
+// }, 4 * 1000)
 
 
 console.info("Waiting clients...")
